@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 
 
-class Role:
+class CRUD:
     def __init__(self):
         self.conn = MongoClient()
         self.db = self.conn['role']
