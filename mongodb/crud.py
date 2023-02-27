@@ -1,4 +1,5 @@
 from pymongo import MongoClient
+from typing import List, Dict
 
 
 class CRUD:
@@ -11,16 +12,19 @@ class CRUD:
         result = self.conn[db][collection].insert_one(document)
         return result.inserted_id
 
-    def read(self, db, collection, **criteria):
+    def read(self, db, collection, **criteria) -> List[Dict]:
         # Find documents in the collection that match the specified criteria
         documents = self.conn[db][collection].find(criteria)
         # Print each document to the console
-        for document in documents:
-            print(document)
-        return
+        return list(documents)
 
-    def update(self, db, collection, **document):
-        return
+    def update(self, db, collection, params, **criteria):
+        # Update a single document in the collection
+        result = self.conn[db][collection].update_one(
+            criteria,
+            {"$set": params}
+        )
+        return result.matched_count
 
     def delete(self, db, collection, **document):
         # Delete a single document from the collection
