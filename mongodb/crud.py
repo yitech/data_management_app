@@ -5,7 +5,6 @@ from typing import List, Dict
 class CRUD:
     def __init__(self):
         self.conn = MongoClient()
-        self.db = self.conn['role']
 
     def create(self, db, collection, **document):
         # Insert the document into the collection
