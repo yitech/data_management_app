@@ -1,39 +1,63 @@
 import dash
 import dash.html as html
 import dash.dcc as dcc
+import dash_bootstrap_components as dbc
+from component.sidebar import sidebar
 from dash.dependencies import Input, Output, State
 
+app = dash.Dash(__name__,
+    external_stylesheets=[dbc.themes.BOOTSTRAP]
+)
 
-# Define external CSS stylesheets
-external_stylesheets = [
-    'https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css',
-    'https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'
-]
+# Define the layout of the landing page
+landing_page_layout = html.Div(
+    children=[
+        html.H1(
+            children="Hello World - Landing Page",
+            className="header"
+        ),
+        dcc.Link('Go to Second Page', href='/login')
+    ],
+    style={
+                'marginLeft': '220px'
+    }
+)
 
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+# Define the layout of the second page
+second_page_layout = html.Div(
+    children=[
+        html.H1(
+            children="Hello World - Second Page",
+            className="header"
+        ),
+        dcc.Link('Go back to Landing Page', href='/')
+    ],
+    style={
+            'marginLeft': '220px'
+    }
+)
 
-app.layout = html.Div([
-    html.H2("Login Page"),
-    dcc.Input(id='username', type='text', placeholder='Username'),
-    dcc.Input(id='password', type='password', placeholder='Password'),
-    html.Button('Login', id='login-button', n_clicks=0),
-    html.Div(id='output-state')
-])
+# Define the main layout that includes a location component for page navigation
+app.layout = html.Div(
+    children=[
+        sidebar,
+        html.Div(
+            children=[
+                dcc.Location(id='url', refresh=False),
+                html.Div(id='page-content')
+            ]
+        )
+    ]
+)
 
-@app.callback(Output('output-state', 'children'),
-              Input('login-button', 'n_clicks'),
-              State('username', 'value'),
-              State('password', 'value'))
-def authenticate_user(n_clicks, username, password):
-    if n_clicks > 0:
-        if username == 'admin' and password == 'password':
-            return dcc.Location(pathname='/dashboard', id='dashboard-url')
-        else:
-            return html.Div('Invalid login credentials. Please try again.')
-
-@app.callback(Output('url', 'pathname'), Input('dashboard-url', 'pathname'))
-def redirect_to_dashboard(pathname):
-    return pathname
+# Define a callback to handle page navigation
+@app.callback(Output('page-content', 'children'),
+              [Input('url', 'pathname')])
+def display_page(pathname):
+    if pathname == '/login':
+        return second_page_layout
+    else:
+        return landing_page_layout
 
 if __name__ == '__main__':
     app.run_server(debug=True)
